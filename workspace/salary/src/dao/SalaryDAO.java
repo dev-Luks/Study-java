@@ -5,7 +5,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
+import java.util.ArrayList;
+ 
 import domain.SalaryVO;
 
 public class SalaryDAO {
@@ -43,27 +44,83 @@ public class SalaryDAO {
       bufferedReader.close();
    }
 //   삭제
-   public void remove(SalaryVO salaryVO) throws IOException {
-	      BufferedReader bufferedReader = DBConnecter.getReader();
-	      String line = null, temp = "";
-	      
-	      while((line = bufferedReader.readLine()) != null) {
-	         if(line.split("   ")[0].equals(insertComma(salaryVO.getSalary()) + "만원")) {
-	            continue;
-	         }
-	         temp += line + "\n";
-	      }
-	      BufferedWriter bufferedWriter = DBConnecter.getWriter();
-	      bufferedWriter.write(temp);
-	      
-	      bufferedWriter.close();
-	      bufferedReader.close();
-	   }
+   public void delete(int salary) throws IOException {
+      BufferedReader bufferedReader = DBConnecter.getReader();
+      BufferedWriter bufferedWriter = null;
+      String line = null, temp = "";
+      
+      while((line = bufferedReader.readLine()) != null) {
+         if(line.split("   ")[0].equals(insertComma(salary))) {
+            continue;
+         }
+         temp += line + "\n";
+      }
+      
+      bufferedWriter = DBConnecter.getWriter();
+      bufferedWriter.write(temp);
+      bufferedWriter.close();
+      bufferedReader.close();
+   }
    
 //   조회
-   
+   public SalaryVO select(int salary) throws IOException {
+      BufferedReader bufferedReader = DBConnecter.getReader();
+      String line = null;
+      SalaryVO salaryVO = new SalaryVO();
+      
+      while((line = bufferedReader.readLine()) != null) {
+         String[] stringDatas = line.split("   ");
+         int[] datas = new int[stringDatas.length];
+         
+         for (int i = 0; i < stringDatas.length; i++) {
+            datas[i] = Integer.parseInt(stringDatas[i].replaceAll(",", ""));
+         }
+         
+         if(stringDatas[0].equals(insertComma(salary))) {
+            salaryVO.setSalary(datas[0]);
+               salaryVO.setNetPay(datas[1]);
+               salaryVO.setTaxDeductionAmount(datas[2]);
+               salaryVO.setPension(datas[3]);
+               salaryVO.setHealthInsurance(datas[4]);
+               salaryVO.setLongTermCarePay(datas[5]);
+               salaryVO.setEmploymentInsurance(datas[6]);
+               salaryVO.setIncomeTax(datas[7]);
+               salaryVO.setLocalTax(datas[8]);
+               break;
+         }
+      }
+      return salaryVO;
+   }
    
 //   목록
+   public ArrayList<SalaryVO> selectAll() throws IOException {
+      BufferedReader bufferedReader = DBConnecter.getReader();
+      String line = null;
+      ArrayList<SalaryVO> salaries = new ArrayList<SalaryVO>();
+      
+      while((line = bufferedReader.readLine()) != null) {
+         SalaryVO salaryVO = new SalaryVO();
+         String[] stringDatas = line.split("   ");
+         int[] datas = new int[stringDatas.length];
+         
+         for (int i = 0; i < stringDatas.length; i++) {
+            datas[i] = Integer.parseInt(stringDatas[i].replaceAll(",", ""));
+         }
+         
+         salaryVO.setSalary(datas[0]);
+            salaryVO.setNetPay(datas[1]);
+            salaryVO.setTaxDeductionAmount(datas[2]);
+            salaryVO.setPension(datas[3]);
+            salaryVO.setHealthInsurance(datas[4]);
+            salaryVO.setLongTermCarePay(datas[5]);
+            salaryVO.setEmploymentInsurance(datas[6]);
+            salaryVO.setIncomeTax(datas[7]);
+            salaryVO.setLocalTax(datas[8]);
+            
+            salaries.add(salaryVO);
+      }
+      return salaries;
+   }
    
    public static String insertComma(int number) {
       String temp = String.valueOf(number);
